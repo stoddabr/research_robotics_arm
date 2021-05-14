@@ -22,7 +22,7 @@ class Perception:
 
     def __init__(self) -> None:
 
-        # setup camera
+        print('Initializing perception')
         self.camera = Camera.Camera()
         self.camera.camera_open()
 
@@ -47,6 +47,7 @@ class Perception:
         }
         self.size = (640, 480)
         self.window_name = "Arm View"
+        print('Finished initializing perception')
 
 
     def reset(self):
@@ -188,7 +189,7 @@ class Perception:
     def see(self):
         """ find new frame, will return True if valid """
 
-        img = self.camera.frame
+        img = self.camera.frame.copy()
         if img is None:
             return False
         
