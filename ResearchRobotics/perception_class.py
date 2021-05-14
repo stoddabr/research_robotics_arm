@@ -189,11 +189,12 @@ class Perception:
     def see(self):
         """ find new frame, will return True if valid """
 
-        img = self.camera.frame.copy()
+        img = self.camera.frame
         if img is None:
             return False
         
-        self.latest_raw_img = img
+        self.latest_raw_img = img.copy()
+        return True
 
     def close(self):
         """ shutdown gracefully """
