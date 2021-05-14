@@ -346,7 +346,6 @@ def run(img):
             img_centerx, img_centery = getCenter(rect, roi, size, square_length)  # Get the center coordinates of the block
             world_x, world_y = convertCoordinate(img_centerx, img_centery, size) # Convert to real world coordinates
             
-            
             cv2.drawContours(img, [box], -1, range_rgb[detect_color], 2)
             cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, range_rgb[detect_color], 1) # Draw center point
@@ -355,6 +354,7 @@ def run(img):
             track = True
             #print(count,distance)
             # Cumulative judgment
+
             if action_finish:
                 if distance < 0.3:
                     center_list.extend((world_x, world_y))
