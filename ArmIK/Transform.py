@@ -53,8 +53,8 @@ def getROI(box):
 
     return (x_min, x_max, y_min, y_max)
 
-#除roi区域外全部变成黑色
-#传入图形，roi区域，图形分辨率
+# All but the roi area becomes black
+# Incoming graphics, roi area, graphics resolution
 def getMaskROI(frame, roi, size):
     x_min, x_max, y_min, y_max = roi
     x_min -= 10

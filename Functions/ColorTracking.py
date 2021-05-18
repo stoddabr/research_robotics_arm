@@ -27,7 +27,7 @@ range_rgb = {
 }
 
 __target_color = ('red',)
-# 设置检测颜色
+#  Set detection color
 def setTargetColor(target_color):
     global __target_color
 
@@ -35,26 +35,27 @@ def setTargetColor(target_color):
     __target_color = target_color
     return (True, ())
 
-# 找出面积最大的轮廓
-# 参数为要比较的轮廓的列表
+#  Find the contour with the largest area
+#  The parameter is a list of contours to be compared
 def getAreaMaxContour(contours):
     contour_area_temp = 0
     contour_area_max = 0
     area_max_contour = None
 
-    for c in contours:  # 历遍所有轮廓
-        contour_area_temp = math.fabs(cv2.contourArea(c))  # 计算轮廓面积
+    for c in contours:  # Traverse all contours
+        contour_area_temp = math.fabs(cv2.contourArea(c))  # Calculate the contour area
         if contour_area_temp > contour_area_max:
             contour_area_max = contour_area_temp
-            if contour_area_temp > 300:  # 只有在面积大于300时，最大面积的轮廓才是有效的，以过滤干扰
+            # Only when the area is greater than 300, the contour of the largest area is effective to filter interference
+            if contour_area_temp > 300: 
                 area_max_contour = c
 
-    return area_max_contour, contour_area_max  # 返回最大的轮廓
+    return area_max_contour, contour_area_max  # Return the largest contour
 
-# 夹持器夹取时闭合的角度
+# The angle at which the gripper is closed when gripping
 servo1 = 500
 
-# 初始位置
+# initial position
 def initMove():
     Board.setBusServoPulse(1, servo1 - 50, 300)
     Board.setBusServoPulse(2, 500, 500)
@@ -66,7 +67,7 @@ def setBuzzer(timer):
     time.sleep(timer)
     Board.setBuzzer(0)
 
-#设置扩展板的RGB灯颜色使其跟要追踪的颜色一致
+# Set the RGB light color of the expansion board to make it consistent with the color to be tracked
 def set_rgb(color):
     if color == "red":
         Board.RGB.setPixelColor(0, Board.PixelColor(255, 0, 0))
@@ -96,7 +97,7 @@ detect_color = 'None'
 action_finish = True
 start_pick_up = False
 start_count_t1 = True
-# 变量重置
+# Variable reset
 def reset():
     global count
     global track
@@ -123,19 +124,19 @@ def reset():
     start_pick_up = False
     start_count_t1 = True
 
-# app初始化调用
+# app initialization call
 def init():
     print("ColorTracking Init")
     initMove()
 
-# app开始玩法调用
+# App start playing method call
 def start():
     global __isRunning
     reset()
     __isRunning = True
     print("ColorTracking Start")
 
-# app停止玩法调用
+# app stop gameplay call
 def stop():
     global _stop 
     global __isRunning
@@ -143,7 +144,7 @@ def stop():
     __isRunning = False
     print("ColorTracking Stop")
 
-# app退出玩法调用
+# App exit gameplay call
 def exit():
     global _stop
     global __isRunning
@@ -157,7 +158,7 @@ rotation_angle = 0
 unreachable = False
 world_X, world_Y = 0, 0
 world_x, world_y = 0, 0
-# 机械臂移动线程
+#  Robotic arm moves thread
 def move():
     global rect
     global track
@@ -173,7 +174,7 @@ def move():
     global center_list, count
     global start_pick_up, first_move
 
-    # 不同颜色木快放置坐标(x, y, z)
+    # (x, y, z) Place coordinates of different colors
     coordinate = {
         'red':   (-15 + 0.5, 12 - 0.5, 1.5),
         'green': (-15 + 0.5, 6 - 0.5,  1.5),
@@ -181,56 +182,56 @@ def move():
     }
     while True:
         if __isRunning:
-            if first_move and start_pick_up: # 当首次检测到物体时               
+            if first_move and start_pick_up: #  When an object is detected for the first time             
                 action_finish = False
                 set_rgb(detect_color)
-                setBuzzer(0.1)               
-                result = AK.setPitchRangeMoving((world_X, world_Y - 2, 5), -90, -90, 0) # 不填运行时间参数，自适应运行时间
+                setBuzzer(0.1)             
+                result = AK.setPitchRangeMoving((world_X, world_Y - 2, 5), -90, -90, 0) # Do not fill in running time parameters, adaptive running time
                 if result == False:
                     unreachable = True
                 else:
                     unreachable = False
-                time.sleep(result[2]/1000) # 返回参数的第三项为时间
+                time.sleep(result[2]/1000) # The third item of the return parameter is time
                 start_pick_up = False
                 first_move = False
                 action_finish = True
-            elif not first_move and not unreachable: # 不是第一次检测到物体
+            elif not first_move and not unreachable: # Not the first time an object has been detected
                 set_rgb(detect_color)
-                if track: # 如果是跟踪阶段
-                    if not __isRunning: # 停止以及退出标志位检测
+                if track: # If it is the tracking stage
+                    if not __isRunning: # Stop and exit flag detection
                         continue
                     AK.setPitchRangeMoving((world_x, world_y - 2, 5), -90, -90, 0, 20)
                     time.sleep(0.02)                    
                     track = False
-                if start_pick_up: #如果物体没有移动一段时间，开始夹取
+                if start_pick_up: # If the object hasn’t moved for a while, start to grip
                     action_finish = False
-                    if not __isRunning: # 停止以及退出标志位检测
+                    if not __isRunning: # Stop and exit flag detection
                         continue
-                    Board.setBusServoPulse(1, servo1 - 280, 500)  # 爪子张开
-                    # 计算夹持器需要旋转的角度
+                    Board.setBusServoPulse(1, servo1 - 280, 500)  # Paws open
+                    # Calculate the angle that the gripper needs to rotate
                     servo2_angle = getAngle(world_X, world_Y, rotation_angle)
                     Board.setBusServoPulse(2, servo2_angle, 500)
                     time.sleep(0.8)
                     
                     if not __isRunning:
                         continue
-                    AK.setPitchRangeMoving((world_X, world_Y, 2), -90, -90, 0, 1000)  # 降低高度
+                    AK.setPitchRangeMoving((world_X, world_Y, 2), -90, -90, 0, 1000)  # lower the altitude
                     time.sleep(2)
                     
                     if not __isRunning:
                         continue
-                    Board.setBusServoPulse(1, servo1, 500)  # 夹持器闭合
+                    Board.setBusServoPulse(1, servo1, 500)  # Holder closed
                     time.sleep(1)
                     
                     if not __isRunning:
                         continue
                     Board.setBusServoPulse(2, 500, 500)
-                    AK.setPitchRangeMoving((world_X, world_Y, 12), -90, -90, 0, 1000)  # 机械臂抬起
+                    AK.setPitchRangeMoving((world_X, world_Y, 12), -90, -90, 0, 1000)  # Robotic arm up
                     time.sleep(1)
                     
                     if not __isRunning:
                         continue
-                    # 对不同颜色方块进行分类放置
+                    # Sort and place different colored squares
                     result = AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0)   
                     time.sleep(result[2]/1000)
                     
@@ -252,7 +253,7 @@ def move():
                     
                     if not __isRunning:
                         continue
-                    Board.setBusServoPulse(1, servo1 - 200, 500)  # 爪子张开，放下物体
+                    Board.setBusServoPulse(1, servo1 - 200, 500)  # Open the paws and put down the object
                     time.sleep(0.8)
                     
                     if not __isRunning:
@@ -260,7 +261,7 @@ def move():
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 800)
                     time.sleep(0.8)
 
-                    initMove()  # 回到初始位置
+                    initMove()  # Back to the initial position
                     time.sleep(1.5)
 
                     detect_color = 'None'
@@ -281,7 +282,7 @@ def move():
                 time.sleep(1.5)
             time.sleep(0.01)
 
-# 运行子线程
+# Run child thread
 th = threading.Thread(target=move)
 th.setDaemon(True)
 th.start()
@@ -317,12 +318,12 @@ def run(img):
      
     frame_resize = cv2.resize(img_copy, size, interpolation=cv2.INTER_NEAREST)
     frame_gb = cv2.GaussianBlur(frame_resize, (11, 11), 11)
-    #如果检测到某个区域有识别到的物体，则一直检测该区域直到没有为止
+    # If an area is detected with a recognized object, it will continue to detect the area until there is none
     if get_roi and start_pick_up:
         get_roi = False
         frame_gb = getMaskROI(frame_gb, roi, size)    
     
-    frame_lab = cv2.cvtColor(frame_gb, cv2.COLOR_BGR2LAB)  # 将图像转换到LAB空间
+    frame_lab = cv2.cvtColor(frame_gb, cv2.COLOR_BGR2LAB)  # Convert image to LAB space
     
     area_max = 0
     areaMaxContour = 0
@@ -330,30 +331,30 @@ def run(img):
         for i in color_range:
             if i in __target_color:
                 detect_color = i
-                frame_mask = cv2.inRange(frame_lab, color_range[detect_color][0], color_range[detect_color][1])  # 对原图像和掩模进行位运算
-                opened = cv2.morphologyEx(frame_mask, cv2.MORPH_OPEN, np.ones((6, 6), np.uint8))  # 开运算
-                closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, np.ones((6, 6), np.uint8))  # 闭运算
-                contours = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]  # 找出轮廓
-                areaMaxContour, area_max = getAreaMaxContour(contours)  # 找出最大轮廓
-        if area_max > 2500:  # 有找到最大面积
+                frame_mask = cv2.inRange(frame_lab, color_range[detect_color][0], color_range[detect_color][1])  # Perform bit operations on the original image and mask
+                opened = cv2.morphologyEx(frame_mask, cv2.MORPH_OPEN, np.ones((6, 6), np.uint8))  # Open operation
+                closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, np.ones((6, 6), np.uint8))  # Closed operation
+                contours = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]  # Find the outline
+                areaMaxContour, area_max = getAreaMaxContour(contours)  # Find the largest contour
+        if area_max > 2500:  # Have found the largest area
             rect = cv2.minAreaRect(areaMaxContour)
             box = np.int0(cv2.boxPoints(rect))
 
-            roi = getROI(box) #获取roi区域
+            roi = getROI(box) # Get roi area
             get_roi = True
 
-            img_centerx, img_centery = getCenter(rect, roi, size, square_length)  # 获取木块中心坐标
-            world_x, world_y = convertCoordinate(img_centerx, img_centery, size) #转换为现实世界坐标
-            
+            img_centerx, img_centery = getCenter(rect, roi, size, square_length)  # Get the center coordinates of the block
+            world_x, world_y = convertCoordinate(img_centerx, img_centery, size) # Convert to real world coordinates
             
             cv2.drawContours(img, [box], -1, range_rgb[detect_color], 2)
             cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, range_rgb[detect_color], 1) #绘制中心点
-            distance = math.sqrt(pow(world_x - last_x, 2) + pow(world_y - last_y, 2)) #对比上次坐标来判断是否移动
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, range_rgb[detect_color], 1) # Draw center point
+            distance = math.sqrt(pow(world_x - last_x, 2) + pow(world_y - last_y, 2)) # Compare the last coordinate to determine whether to move
             last_x, last_y = world_x, world_y
             track = True
             #print(count,distance)
-            # 累计判断
+            # Cumulative judgment
+
             if action_finish:
                 if distance < 0.3:
                     center_list.extend((world_x, world_y))
