@@ -98,13 +98,34 @@ class Arm:
 
 
     def setBuzzer(self, timer):
-        """ Activate buzzer noise 'timer' seconds """
+        """ Activate buzzer to sound for 'timer' seconds """
 
         Board.setBuzzer(0)
         Board.setBuzzer(1)
         time.sleep(timer)
         Board.setBuzzer(0)
 
+
+    
+    def set_rgb(color):
+        """ Set the RGB light color of the expansion board to make it consistent with the color to be tracked """
+
+        if color == "red":
+            Board.RGB.setPixelColor(0, Board.PixelColor(255, 0, 0))
+            Board.RGB.setPixelColor(1, Board.PixelColor(255, 0, 0))
+            Board.RGB.show()
+        elif color == "green":
+            Board.RGB.setPixelColor(0, Board.PixelColor(0, 255, 0))
+            Board.RGB.setPixelColor(1, Board.PixelColor(0, 255, 0))
+            Board.RGB.show()
+        elif color == "blue":
+            Board.RGB.setPixelColor(0, Board.PixelColor(0, 0, 255))
+            Board.RGB.setPixelColor(1, Board.PixelColor(0, 0, 255))
+            Board.RGB.show()
+        else:
+            Board.RGB.setPixelColor(0, Board.PixelColor(0, 0, 0))
+            Board.RGB.setPixelColor(1, Board.PixelColor(0, 0, 0))
+            Board.RGB.show()
 
 
 if __name__ == '__main__':
