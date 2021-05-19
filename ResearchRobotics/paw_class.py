@@ -114,11 +114,11 @@ class Paw:
         """ spin 'n wave yo arm like you just dont care -  """
 
         self.resetPosition()
-        Board.setBusServoPulse(1, 100, 1000)
+        Board.setBusServoPulse(6, 100, 1000)
         time.sleep(1)
-        Board.setBusServoPulse(1, 800, 1000)
+        Board.setBusServoPulse(6, 800, 1000)
         time.sleep(1)
-        Board.setBusServoPulse(1, 100, 1000)
+        Board.setBusServoPulse(6, 100, 1000)
         time.sleep(1)
 
 
