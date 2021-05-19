@@ -17,7 +17,7 @@ class Paw:
         """ """
 
         self.reset()
-        self.initMove()
+        self.resetPosition()
 
 
     def reset(self):
@@ -27,8 +27,6 @@ class Paw:
         self.isRunning = False
         self.closeAngle = 500  # gipper angle when grabbing object (legacy:servo1)
         self.openAngle = (500 - 280)  # legacy magic number 
-
-
 
 
     def resetPosition(self):  # legacy:initMove
