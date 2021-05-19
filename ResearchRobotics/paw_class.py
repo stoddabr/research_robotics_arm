@@ -28,14 +28,14 @@ class Paw:
         self.closeAngle = 500  # gipper angle when grabbing object (legacy:servo1)
         self.openAngle = (500 - 280)  # legacy magic number 
         self.neutralAngle = (500 - 50)  # legacy magic number
-
+        self.AK = ArmIK()
 
     def resetPosition(self):  # legacy:initMove
         """ Move servo to neutral, initial position """
 
         Board.setBusServoPulse(1, self.neutralAngle, 300)
         Board.setBusServoPulse(2, 500, 500)
-        AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
+        self.AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
         time.sleep(1.5)
 
 
@@ -72,7 +72,7 @@ class Paw:
         world_Z (height) is optional, default 2
         """
 
-        AK.setPitchRangeMoving((world_X, world_Y, world_Z), -90, -90, 0, 1000)
+        self.AK.setPitchRangeMoving((world_X, world_Y, world_Z), -90, -90, 0, 1000)
 
 
     def rotateGripper(self, world_angle):
