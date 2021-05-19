@@ -129,7 +129,7 @@ if __name__ == '__main__':
     paw = Paw()
     red_block_home_coords = (-15 + 0.5, 12 - 0.5, 1.5) # x, y, angle on mat plane
     
-    paw.grabAtXY(*test_coords)
+    paw.grabAtXY(*red_block_home_coords)
     paw.partyTime()
-    paw.placeAtXY(*test_coords)
+    paw.placeAtXY(*red_block_home_coords)
 
