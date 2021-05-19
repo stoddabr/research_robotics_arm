@@ -35,7 +35,7 @@ class Paw:
 
         Board.setBusServoPulse(1, self.neutralAngle, 300)
         Board.setBusServoPulse(2, 500, 500)
-        self.AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
+        AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
         time.sleep(1.5)
 
 
