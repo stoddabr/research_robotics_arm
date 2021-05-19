@@ -33,7 +33,7 @@ class Paw:
     def resetPosition(self):  # legacy:initMove
         """ Move servo to neutral, initial position """
 
-        Board.setBusServoPulse(1, self.servo1 - 50, 300)
+        Board.setBusServoPulse(1, self.neutralAngle, 300)
         Board.setBusServoPulse(2, 500, 500)
         self.AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
         time.sleep(1.5)
