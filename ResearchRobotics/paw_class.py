@@ -79,7 +79,6 @@ class Paw:
         """ turn the gripper """
 
         Board.setBusServoPulse(2, world_angle, 500)
-        input('Calculate the angle that the gripper needs to rotate')
         time.sleep(5)
 
 
