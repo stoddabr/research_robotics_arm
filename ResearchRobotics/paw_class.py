@@ -25,9 +25,9 @@ class Paw:
 
         self.unreachable = False
         self.isRunning = False
-        self.closeAngle = 500  # gipper angle when grabbing object (legacy:servo1)
-        self.openAngle = (500 - 280)  # legacy magic number 
-        self.neutralAngle = (500 - 50)  # legacy magic number
+        self.closeAngle = 520  # gipper angle when grabbing object (legacy:servo1)
+        self.openAngle = (self.closeAngle - 280)  # legacy magic number 
+        self.neutralAngle = (self.closeAngle - 50)  # legacy magic number
         self.AK = ArmIK()
 
     def resetPosition(self, reset_gripper=True):  # legacy:initMove

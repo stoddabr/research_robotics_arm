@@ -128,6 +128,7 @@ class Perception:
         frame_lab = cv2.cvtColor(frame_gb, cv2.COLOR_BGR2LAB)  # Convert image to LAB space
 
         areaMaxContour, area_max = (0,0)
+        found_color = False
         for i in self.color_range:
             if i in self.__target_color:
                 # mask color range for targeted color
@@ -138,6 +139,8 @@ class Perception:
                 closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, np.ones((6, 6), np.uint8))  # Closed operation
                 contours = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]  # Find the outline
                 areaMaxContour, area_max = self.getAreaMaxContour(contours)  # Find the largest contour
+                found_color = i
+                break  # found color, move on
 
         if area_max > 2500:  # Have found the largest area
             rect = cv2.minAreaRect(areaMaxContour)
@@ -159,7 +162,7 @@ class Perception:
             loc = (None, None)
         
         self.latest_display_img = img  # save image for display with overlays
-        return loc
+        return loc, found_color
 
 
     def detect(self, target_color=None, print_loc=False):
@@ -175,6 +178,7 @@ class Perception:
 
         if print_loc:
             print('Found block at location: ', loc)
+        return loc
 
     
     def display(self):

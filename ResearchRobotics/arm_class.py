@@ -22,79 +22,68 @@ if sys.version_info.major == 2:
     sys.exit(0)
 
 
+## TODO combine paw and color classes.
+0
+
 class Arm:
 
     def __init__(self) -> None:
-        self.AK = ArmIK()
-        self.__target_color = ('red',)
-        self.servo1 = 500  # The angle at which the gripper is closed when gripping
-        
-        # initialize variables for planning
-        self.count = 0
-        self.track = False
-        self._stop = False
-        self.get_roi = False
-        self.center_list = []
-        self.first_move = True
-        self.detect_color = 'None'
-        self.action_finish = True
-        self.start_pick_up = False
-        self.start_count_t1 = True
-        self.__isRunning = False
+
         # initialize encapsulated classes
         self.eye = Perception()
         self.paw = Paw()
 
-
-    def colorTracking(self):
-        """ app initialization call """
-
-        print("ColorTracking Init")
-        self.arm.initMove()
-
-
-    def start(self):
-        """ App start playing method call """
-
-        self.reset()
-        self.__isRunning = True
-        print("ColorTracking Start")
+        # (x, y, z) Place coordinates of different colors
+        # color them
+        self.color_goal_coordinate = {
+            'red':   (-15 + 0.5, 12 - 0.5, 1.5),
+            'green': (-15 + 0.5, 6 - 0.5,  1.5),
+            'blue':  (-15 + 0.5, 0 - 0.5,  1.5),
+        }
+        # in a stack
 
 
-    def stop(self):
-        """ App stop gameplay call """
+    def colorSorting(self):
+        """ grab colors and place them onto their spaces """
 
-        self._stop = True
-        self.__isRunning = False
-        print("ColorTracking Stop")
+        # TODO multithread with Rossros
+        target_colors = [('red','green','blue')]
+
+        while True:
+            self.setBuzzer(0.1)
+            is_not_blind = eye.see()
+            if is_not_blind:
+                # find block
+                loc, found_color = self.eye.detect(target_color=target_colors, print_loc=True)
+                
+                # see result in window and arm led
+                if found_color:
+                    self.paw.set_rgb(color)
+                key = eye.display()
+                if key == 27:  # ??
+                    break
+                
+                # grab block
+                self.paw.grabAtXY(*loc)
+                
+                # place block at cooresponding coordinate
+                self.paw.placeAtXY(*self.color_goal_coordinate[found_color])
+        eye.close()
 
 
     def exit(self):
         """ App exit gameplay call """
-
-        self._stop = True
-        self.__isRunning = False
-        print("ColorTracking Exit")
+        # may be necessary for threading
+        pass 
 
 
     def reset(self):
         """ Reset class variables """
 
-        self.count = 0
-        self._stop = False
-        self.track = False
-        self.get_roi = False
-        self.center_list = []
-        self.first_move = True
-        self.__target_color = ()
-        self.action_finish = True
-        self.start_pick_up = False
-        self.start_count_t1 = True
-        self.detect_color = 'None'
-
         # reset encapsulated classes
         self.paw.reset()
         self.eye.reset()
+
 
 
     def setBuzzer(self, timer):
@@ -131,21 +120,5 @@ class Arm:
 if __name__ == '__main__':
     # Identifies locations of a block and labels it in the camera video display
 
-    eye = Perception()
-
-    init()
-    start()
-    __target_color = ('red', )
-    my_camera = Camera.Camera()
-    my_camera.camera_open()
-    while True:
-        img = my_camera.frame
-        if img is not None:
-            frame = img.copy()
-            Frame = run(frame)           
-            cv2.imshow('Frame', Frame)
-            key = cv2.waitKey(1)
-            if key == 27:
-                break
-    my_camera.camera_close()
-    cv2.destroyAllWindows()
+    arm = Arm()
+    arm.colorSorting()
