@@ -55,6 +55,7 @@ class Arm:
             if is_not_blind:
                 # find block
                 loc, found_color = self.eye.detect(target_color=target_colors, print_loc=True)
+                print('loc', loc, 'color', found_color)
                 
                 # see result in window and arm led
                 if found_color:
@@ -64,8 +65,9 @@ class Arm:
                     break
                 
                 # grab block
-                self.paw.grabAtXY(*loc)
-                
+                if loc:
+                    self.paw.grabAtXY(*loc)
+
                 # place block at cooresponding coordinate
                 self.paw.placeAtXY(*self.color_goal_coordinate[found_color])
         self.eye.close()

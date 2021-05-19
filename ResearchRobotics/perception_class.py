@@ -111,7 +111,7 @@ class Perception:
     def findBlock(self):
         """ using an image, return expected block location and frame overlay 
         
-        if no block was found, will return (None,None) as location
+        if no block was found, will return False as location
         """
 
         img_copy = self.latest_raw_img.copy()  # img to transform in search for block
@@ -159,7 +159,7 @@ class Perception:
             loc = (world_x, world_y)
         
         else:
-            loc = (None, None)
+            loc = False
         
         self.latest_display_img = img  # save image for display with overlays
         return loc, found_color
