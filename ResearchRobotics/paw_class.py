@@ -30,11 +30,11 @@ class Paw:
         self.neutralAngle = (500 - 50)  # legacy magic number
         self.AK = ArmIK()
 
-    def resetPosition(self):  # legacy:initMove
+    def resetPosition(self, reset_gripper=True):  # legacy:initMove
         """ Move servo to neutral, initial position """
 
-        Board.setBusServoPulse(1, self.neutralAngle, 300)
-        Board.setBusServoPulse(2, 500, 500)
+        if reset_gripper:
+            Board.setBusServoPulse(1, self.neutralAngle, 300)
         self.AK.setPitchRangeMoving((0, 10, 10), -30, -30, -90, 1500)
         time.sleep(1.5)
 
@@ -104,7 +104,7 @@ class Paw:
 
         world_angle = getAngle(world_X, world_Y, rotation_angle)
 
-        self.resetPosition()
+        self.resetPosition(False)
         self.rotateGripper(world_angle)
         self.moveToXY(world_X, world_Y)
         self.open()
@@ -113,7 +113,7 @@ class Paw:
     def partyTime(self):
         """ spin 'n wave yo arm like you just dont care -  """
 
-        self.resetPosition()
+        self.resetPosition(False)
         Board.setBusServoPulse(6, 100, 1000)
         time.sleep(1)
         Board.setBusServoPulse(6, 800, 1000)
