@@ -83,7 +83,7 @@ class Paw:
         time.sleep(5)
 
 
-    def grabAtXY(self, world_X, world_Y, angle):
+    def grabAtXY(self, world_X, world_Y, rotation_angle):
         """ grab object at coordinate goal location of the object """
 
         world_angle = getAngle(world_X, world_Y, rotation_angle)
