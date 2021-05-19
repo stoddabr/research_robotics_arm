@@ -51,7 +51,7 @@ class Arm:
 
         while True:
             self.setBuzzer(0.1)
-            is_not_blind = eye.see()
+            is_not_blind = self.eye.see()
             if is_not_blind:
                 # find block
                 loc, found_color = self.eye.detect(target_color=target_colors, print_loc=True)
@@ -68,7 +68,7 @@ class Arm:
                 
                 # place block at cooresponding coordinate
                 self.paw.placeAtXY(*self.color_goal_coordinate[found_color])
-        eye.close()
+        self.eye.close()
 
 
     def exit(self):
