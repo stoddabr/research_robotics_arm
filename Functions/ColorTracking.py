@@ -220,6 +220,7 @@ def move():
                     if not __isRunning:
                         continue
                     input('lower the altitude')
+                    print('xy:', world_X, world_Y)
                     AK.setPitchRangeMoving((world_X, world_Y, 2), -90, -90, 0, 1000)  # lower the altitude
                     time.sleep(5)
                     
