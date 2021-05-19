@@ -139,8 +139,9 @@ class Perception:
                 closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, np.ones((6, 6), np.uint8))  # Closed operation
                 contours = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]  # Find the outline
                 areaMaxContour, area_max = self.getAreaMaxContour(contours)  # Find the largest contour
-                found_color = i
-                break  # found color, move on
+                if area_max > 2500:
+                    found_color = i
+                    break  # found color, move on
 
         if area_max > 2500:  # Have found the largest area
             rect = cv2.minAreaRect(areaMaxContour)
