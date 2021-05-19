@@ -14,7 +14,7 @@ import HiwonderSDK.Board as Board
 from CameraCalibration.CalibrationConfig import *
 
 from ResearchRobotics.perception_class import Perception
-from ResearchRobotics.paws_class import Paw
+from ResearchRobotics.paw_class import Paw
 
 
 if sys.version_info.major == 2:
