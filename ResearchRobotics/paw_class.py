@@ -83,7 +83,7 @@ class Paw:
         """ turn the gripper """
 
         Board.setBusServoPulse(2, world_angle, 500)
-        time.sleep(5)
+        time.sleep(0.5)
 
 
     def grabAtXY(self, world_X, world_Y, rotation_angle):
@@ -110,10 +110,26 @@ class Paw:
         self.open()
         self.resetPosition()
 
+    def partyTime(self):
+        """ spin 'n wave yo arm like you just dont care -  """
+
+        self.resetPosition()
+        Board.setBusServoPulse(1, 100, 1000)
+        time.sleep(1)
+        Board.setBusServoPulse(1, 800, 1000)
+        time.sleep(1)
+        Board.setBusServoPulse(1, 100, 1000)
+        time.sleep(1)
+
 
 if __name__ == '__main__':
-    paw = Paw()
 
-    test_coords = (-15 + 0.5, 12 - 0.5, 1.5) # x, y, angle on mat plane
+    # will pick up a block on the red square, wave around, and put it back
+
+    paw = Paw()
+    red_block_home_coords = (-15 + 0.5, 12 - 0.5, 1.5) # x, y, angle on mat plane
+    
     paw.grabAtXY(*test_coords)
+    paw.partyTime()
+    paw.placeAtXY(*test_coords)
 
