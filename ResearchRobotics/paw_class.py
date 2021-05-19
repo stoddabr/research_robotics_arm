@@ -72,7 +72,11 @@ class Paw:
         world_Z (height) is optional, default 2
         """
 
-        self.AK.setPitchRangeMoving((world_X, world_Y, world_Z), -90, -90, 0, 1000)
+        result = self.AK.setPitchRangeMoving((world_X, world_Y, world_Z), -90, -90, 0, 1000)
+        if result == False:
+            return False  # object is unreachable
+        
+        time.sleep(result[2]/1000) # The third item of the return parameter is time
 
 
     def rotateGripper(self, world_angle):
