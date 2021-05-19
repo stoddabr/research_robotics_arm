@@ -99,7 +99,7 @@ class Paw:
         self.resetPosition()
 
 
-    def placeAtXY(self, world_X, world_Y, angle):
+    def placeAtXY(self, world_X, world_Y, rotation_angle):
         """ place grabbed object at coordinate gooal location"""
 
         world_angle = getAngle(world_X, world_Y, rotation_angle)
