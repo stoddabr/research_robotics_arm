@@ -59,7 +59,7 @@ class Arm:
                 # see result in window and arm led
                 if found_color:
                     self.paw.set_rgb(color)
-                key = eye.display()
+                key = self.eye.display()
                 if key == 27:  # ??
                     break
                 
