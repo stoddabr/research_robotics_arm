@@ -59,7 +59,7 @@ class Arm:
                 
                 # see result in window and arm led
                 if found_color:
-                    self.paw.set_rgb(color)
+                    self.paw.set_rgb(found_color)
                 key = self.eye.display()
                 if key == 27:  # ??
                     break
@@ -114,6 +114,7 @@ class Arm:
             Board.RGB.setPixelColor(1, Board.PixelColor(0, 0, 255))
             Board.RGB.show()
         else:
+            print('set_rgb color not found')
             Board.RGB.setPixelColor(0, Board.PixelColor(0, 0, 0))
             Board.RGB.setPixelColor(1, Board.PixelColor(0, 0, 0))
             Board.RGB.show()

@@ -39,10 +39,6 @@ class Paw:
         time.sleep(1.5)
 
 
-    def setGoalXY(self, goal_x, goal_y):
-        """ give a new x,y goal in camera space """
-
-
     def updateCloseAngle(self, newCloseAngle):
         """ Updates the default variable for closing the gripper (eg 500) """
 

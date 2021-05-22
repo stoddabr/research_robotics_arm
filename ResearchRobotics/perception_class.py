@@ -107,6 +107,61 @@ class Perception:
 
         return area_max_contour, contour_area_max  # Return the largest contour
 
+    def display_img(self, img, wname='default window name'):
+        """ show image in window with name """
+
+        img_disp = img.copy()
+        cv2.imshow(wname, img_disp)
+        key = cv2.waitKey(0)
+        return key
+
+
+    def testFind(self, color_range):
+        """ find objects in color range
+        
+        useful for prototpying other colors or objects
+        color_range is a 2d tuple of 3d tuples: [(0, 151, 100), (255, 255, 255)]
+        returns location and if a color was found
+        updates the display image used in self.display
+        """
+
+        img = self.latest_raw_img.copy()  # img to transform in search for block
+        img_copy = img.copy()
+        frame_resize = cv2.resize(img_copy, self.size, interpolation=cv2.INTER_NEAREST)
+        frame_gb = cv2.GaussianBlur(frame_resize, (11, 11), 11)
+        frame_lab = cv2.cvtColor(frame_gb, cv2.COLOR_BGR2LAB)  # Convert image to LAB space
+        self.display_img(frame_lab, 'lab frame')
+
+        frame_mask = cv2.inRange(frame_lab, color_range[0], color_range[1])  # Perform bit operations on the original image and mask
+        self.display_img(frame_mask, 'mask range frame')
+
+        # process imag  e to reduce noise and find contours
+        opened = cv2.morphologyEx(frame_mask, cv2.MORPH_OPEN, np.ones((6, 6), np.uint8))  # Open operation
+        closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, np.ones((6, 6), np.uint8))  # Closed operation
+        contours = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]  # Find the outline
+        areaMaxContour, area_max = self.getAreaMaxContour(contours)  # Find the largest contour
+        
+        found_color = False
+        loc = False
+        if area_max > 2500:  # Have found the largest area
+            # identify rectangular region around blob and blob center
+            rect = cv2.minAreaRect(areaMaxContour)
+            box = np.int0(cv2.boxPoints(rect))
+            roi = getROI(box) # Get roi area
+            img_centerx, img_centery = getCenter(rect, roi, self.size, square_length)  # Get the center coordinates of the block
+            world_x, world_y = convertCoordinate(img_centerx, img_centery, self.size) # Convert to real world coordinates
+            # draw outline of object
+            red_color = (0, 151, 100)
+            cv2.drawContours(img, [box], -1, red_color, 2)  # draw with red
+            cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, red_color, 1) # Draw center point in red     
+            # save values to return
+            loc = (world_x, world_y)
+            found_color = True
+
+        self.latest_display_img = img  # save image for display with overlays
+        return loc, found_color
+
 
     def findBlock(self):
         """ using an image, return expected block location and frame overlay 
@@ -191,6 +246,17 @@ class Perception:
         key = cv2.waitKey(1)  # will show for 1ms
         return key
 
+
+    def save(self):
+        """  save last image 
+        
+        useful for streaming images in flask request in another thread
+        uses window name to set filename 
+        """
+
+        cv2.imwrite(self.latest_display_img + '.jpg', self.latest_display_img)
+
+
     def see(self):
         """ find new frame, will return True if valid """
 
@@ -220,6 +286,7 @@ if __name__ == '__main__':
         if is_not_blind:
             eye.detect()
             key = eye.display()
+            # eye.save()
             if key == 27:  # ??
                 break
     eye.close()
