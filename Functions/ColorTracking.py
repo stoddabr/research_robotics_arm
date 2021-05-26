@@ -182,7 +182,8 @@ def move():
     }
     while True:
         if __isRunning:
-            if first_move and start_pick_up: #  When an object is detected for the first time             
+            if first_move and start_pick_up: #  When an object is detected for the first time   
+                input('When an object is detected for the first time')          
                 action_finish = False
                 set_rgb(detect_color)
                 setBuzzer(0.1)             
@@ -195,6 +196,7 @@ def move():
                 start_pick_up = False
                 first_move = False
                 action_finish = True
+                print('fin first_move')
             elif not first_move and not unreachable: # Not the first time an object has been detected
                 set_rgb(detect_color)
                 if track: # If it is the tracking stage
@@ -207,53 +209,65 @@ def move():
                     action_finish = False
                     if not __isRunning: # Stop and exit flag detection
                         continue
-                    Board.setBusServoPulse(1, servo1 - 280, 500)  # Paws open
+                    Board.setBusServoPulse(1, servo1 - 280, 500)  # 
+                    input('Paws open')
                     # Calculate the angle that the gripper needs to rotate
                     servo2_angle = getAngle(world_X, world_Y, rotation_angle)
                     Board.setBusServoPulse(2, servo2_angle, 500)
-                    time.sleep(0.8)
+                    input('Calculate the angle that the gripper needs to rotate')
+                    time.sleep(5)
                     
                     if not __isRunning:
                         continue
+                    input('lower the altitude')
+                    print('xy:', world_X, world_Y)
                     AK.setPitchRangeMoving((world_X, world_Y, 2), -90, -90, 0, 1000)  # lower the altitude
-                    time.sleep(2)
+                    time.sleep(5)
                     
                     if not __isRunning:
                         continue
                     Board.setBusServoPulse(1, servo1, 500)  # Holder closed
-                    time.sleep(1)
+                    input('Holder closed')
+                    time.sleep(5)
                     
                     if not __isRunning:
                         continue
                     Board.setBusServoPulse(2, 500, 500)
                     AK.setPitchRangeMoving((world_X, world_Y, 12), -90, -90, 0, 1000)  # Robotic arm up
-                    time.sleep(1)
+                    input('Robotic arm up')
+                    time.sleep(5)
                     
                     if not __isRunning:
                         continue
+                    input('Sort and place different colored squares')
                     # Sort and place different colored squares
                     result = AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0)   
                     time.sleep(result[2]/1000)
+                    time.sleep(5)
                     
                     if not __isRunning:
                         continue
                     servo2_angle = getAngle(coordinate[detect_color][0], coordinate[detect_color][1], -90)
                     Board.setBusServoPulse(2, servo2_angle, 500)
-                    time.sleep(0.5)
+                    input('checkpoint A')
+                    time.sleep(5)
 
                     if not __isRunning:
                         continue
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], coordinate[detect_color][2] + 3), -90, -90, 0, 500)
+                    input('checkpoint B')
                     time.sleep(0.5)
                     
                     if not __isRunning:
                         continue
                     AK.setPitchRangeMoving((coordinate[detect_color]), -90, -90, 0, 1000)
+                    input('checkpoint C')
                     time.sleep(0.8)
                     
                     if not __isRunning:
                         continue
                     Board.setBusServoPulse(1, servo1 - 200, 500)  # Open the paws and put down the object
+                    input('Open the paws and put down the object')
                     time.sleep(0.8)
                     
                     if not __isRunning:
@@ -261,6 +275,7 @@ def move():
                     AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 800)
                     time.sleep(0.8)
 
+                    input('Back to the initial position')
                     initMove()  # Back to the initial position
                     time.sleep(1.5)
 

@@ -11,9 +11,9 @@ from ArmIK.Transform import getAngle
 from mpl_toolkits.mplot3d import Axes3D
 from HiwonderSDK.Board import setBusServoPulse, getBusServoPulse
 
-#机械臂根据逆运动学算出的角度进行移动
+#The robot arm moves according to the angle calculated by inverse kinematics
 ik = IK('arm')
-#设置连杆长度
+#Set link length
 l1 = ik.l1 + 0.75
 l4 = ik.l4 - 0.15
 ik.setLinkLength(L1=l1, L4=l4)
@@ -28,7 +28,7 @@ class ArmIK:
         self.setServoRange()
 
     def setServoRange(self, servo3_Range=servo3Range, servo4_Range=servo4Range, servo5_Range=servo5Range, servo6_Range=servo6Range):
-        # 适配不同的舵机
+        # Adapt to different servos
         self.servo3Range = servo3_Range
         self.servo4Range = servo4_Range
         self.servo5Range = servo5_Range
@@ -39,20 +39,20 @@ class ArmIK:
         self.servo6Param = (self.servo6Range[1] - self.servo6Range[0]) / (self.servo6Range[3] - self.servo6Range[2])
 
     def transformAngelAdaptArm(self, theta3, theta4, theta5, theta6):
-        #将逆运动学算出的角度转换为舵机对应的脉宽值
+        #Convert the angle calculated by inverse kinematics into the pulse width value corresponding to the servo
         servo3 = int(round(theta3 * self.servo3Param + (self.servo3Range[1] + self.servo3Range[0])/2))
         if servo3 > self.servo3Range[1] or servo3 < self.servo3Range[0] + 60:
-            logger.info('servo3(%s)超出范围(%s, %s)', servo3, self.servo3Range[0] + 60, self.servo3Range[1])
+            logger.info('servo3(%s)Out of range(%s, %s)', servo3, self.servo3Range[0] + 60, self.servo3Range[1])
             return False
 
         servo4 = int(round(theta4 * self.servo4Param + (self.servo4Range[1] + self.servo4Range[0])/2))
         if servo4 > self.servo4Range[1] or servo4 < self.servo4Range[0]:
-            logger.info('servo4(%s)超出范围(%s, %s)', servo4, self.servo4Range[0], self.servo4Range[1])
+            logger.info('servo4(%s)Out of range(%s, %s)', servo4, self.servo4Range[0], self.servo4Range[1])
             return False
 
         servo5 = int(round((self.servo5Range[1] + self.servo5Range[0])/2 - (90.0 - theta5) * self.servo5Param))
         if servo5 > ((self.servo5Range[1] + self.servo5Range[0])/2 + 90*self.servo5Param) or servo5 < ((self.servo5Range[1] + self.servo5Range[0])/2 - 90*self.servo5Param):
-            logger.info('servo5(%s)超出范围(%s, %s)', servo5, self.servo5Range[0], self.servo5Range[1])
+            logger.info('servo5(%s)Out of range(%s, %s)', servo5, self.servo5Range[0], self.servo5Range[1])
             return False
         
         if theta6 < -(self.servo6Range[3] - self.servo6Range[2])/2:
@@ -60,13 +60,13 @@ class ArmIK:
         else:
             servo6 = int(round(((self.servo6Range[3] - self.servo6Range[2])/2 - (90 - theta6)) * self.servo6Param))
         if servo6 > self.servo6Range[1] or servo6 < self.servo6Range[0]:
-            logger.info('servo6(%s)超出范围(%s, %s)', servo6, self.servo6Range[0], self.servo6Range[1])
+            logger.info('servo6(%s)Out of range(%s, %s)', servo6, self.servo6Range[0], self.servo6Range[1])
             return False
 
         return {"servo3": servo3, "servo4": servo4, "servo5": servo5, "servo6": servo6}
 
     def servosMove(self, servos, movetime=None):
-        #驱动3,4,5,6号舵机转动
+        # Drive 3,4,5,6 servos to rotate
         time.sleep(0.02)
         if movetime is None:
             max_d = 0
@@ -83,10 +83,10 @@ class ArmIK:
         return movetime
 
     def setPitchRange(self, coordinate_data, alpha1, alpha2, da = 1):
-        #给定坐标coordinate_data和俯仰角的范围alpha1，alpha2, 自动在范围内寻找到的合适的解
-        #如果无解返回False,否则返回对应舵机角度,俯仰角
-        #坐标单位cm， 以元组形式传入，例如(0, 5, 10)
-        #da为俯仰角遍历时每次增加的角度
+        #Given the coordinate_data and the range of the pitch angle alpha1, alpha2, automatically find a suitable solution within the range
+        #If there is no solution, return False, otherwise return the corresponding servo angle, pitch angle
+        #Coordinate unit cm, passed in as a tuple, for example (0, 5, 10)
+        #da is the angle that is increased each time the pitch angle is traversed
         x, y, z = coordinate_data
         if alpha1 >= alpha2:
             da = -da
@@ -101,12 +101,13 @@ class ArmIK:
         return False
 
     def setPitchRangeMoving(self, coordinate_data, alpha, alpha1, alpha2, movetime=None):
-        #给定坐标coordinate_data和俯仰角alpha,以及俯仰角范围的范围alpha1, alpha2，自动寻找最接近给定俯仰角的解，并转到目标位置
-        #如果无解返回False,否则返回舵机角度、俯仰角、运行时间
-        #坐标单位cm， 以元组形式传入，例如(0, 5, 10)
-        #alpha为给定俯仰角
-        #alpha1和alpha2为俯仰角的取值范围
-        #movetime为舵机转动时间，单位ms, 如果不给出时间，则自动计算
+        # Given coordinate_data and pitch angle alpha, as well as the range of pitch angle range alpha1, alpha2, automatically find the solution closest to the given pitch angle and turn to the target position
+        # If there is no solution, return False, otherwise return the servo angle, pitch angle, and running time
+        # Coordinate unit cm, passed in as a tuple, for example (0, 5, 10)
+        # alpha is the given pitch angle
+        # Alpha1 and alpha2 are the range of pitch angle
+        # movetime is the rotation time of the steering gear, in ms, if no time is given, it will be calculated automatically
+
         x, y, z = coordinate_data
         result1 = self.setPitchRange((x, y, z), alpha, alpha1)
         result2 = self.setPitchRange((x, y, z), alpha, alpha2)
@@ -128,8 +129,8 @@ class ArmIK:
     '''
     #for test
     def drawMoveRange2D(self, x_min, x_max, dx, y_min, y_max, dy, z, a_min, a_max, da):
-        # 测试可到达点, 以2d图形式展现，z固定
-        #测试可到达点, 以3d图形式展现，如果点过多，3d图会比较难旋转
+        # The reachable point of the test is displayed in the form of 2d graph, z is fixed
+        #Test reachable points, displayed in the form of 3d graphs, if there are too many points, the 3d graphs will be more difficult to rotate        
         try:
             for y in np.arange(y_min, y_max, dy):
                 for x in np.arange(x_min, x_max, dx):
@@ -146,7 +147,7 @@ class ArmIK:
             pass
 
     def drawMoveRange3D(self, x_min, x_max, dx, y_min, y_max, dy, z_min, z_max, dz, a_min, a_max, da):
-        #测试可到达点, 以3d图形式展现，如果点过多，3d图会比较难旋转
+        #Test reachable points, displayed in the form of 3d graphs, if there are too many points, the 3d graphs will be more difficult to rotate
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         try:
