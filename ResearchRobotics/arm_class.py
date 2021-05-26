@@ -47,10 +47,10 @@ class Arm:
         """ grab colors and place them onto their spaces """
 
         # TODO multithread with Rossros
-        target_colors = [('red','green','blue')]
+        target_colors = ('red',)
 
         while True:
-            self.setBuzzer(0.1)
+            # self.setBuzzer(0.1)
             is_not_blind = self.eye.see()
             if is_not_blind:
                 # find block
@@ -59,17 +59,17 @@ class Arm:
                 
                 # see result in window and arm led
                 if found_color:
-                    self.paw.set_rgb(found_color)
+                    self.set_rgb(found_color)
                 key = self.eye.display()
                 if key == 27:  # ??
                     break
                 
-                # grab block
                 if loc:
+                    # grab block
                     self.paw.grabAtXY(*loc)
+                    # place block at cooresponding coordinate
+                    self.paw.placeAtXY(*self.color_goal_coordinate[found_color])
 
-                # place block at cooresponding coordinate
-                self.paw.placeAtXY(*self.color_goal_coordinate[found_color])
         self.eye.close()
 
 
@@ -98,7 +98,7 @@ class Arm:
 
 
     
-    def set_rgb(color):
+    def set_rgb(self, color):
         """ Set the RGB light color of the expansion board to make it consistent with the color to be tracked """
 
         if color == "red":

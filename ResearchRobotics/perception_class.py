@@ -156,7 +156,7 @@ class Perception:
             cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, red_color, 1) # Draw center point in red     
             # save values to return
-            loc = (world_x, world_y)
+            loc = (world_x, world_y,rect[2])
             found_color = True
 
         self.latest_display_img = img  # save image for display with overlays
@@ -211,8 +211,8 @@ class Perception:
             cv2.drawContours(img, [box], -1, self.range_rgb[detect_color], 2)
             cv2.putText(img, '(' + str(world_x) + ',' + str(world_y) + ')', (min(box[0, 0], box[2, 0]), box[2, 1] - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.range_rgb[detect_color], 1) # Draw center point
-
-            loc = (world_x, world_y)
+            world_angle = rect[2]
+            loc = (world_x, world_y, world_angle)
         
         else:
             loc = False
