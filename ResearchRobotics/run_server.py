@@ -1,9 +1,11 @@
 import time
 import os
-from flask import Flask, url_for, request
+from flask import Flask, send_file, request
 from markupsafe import escape
 import json
+import random
 
+   
 # io helpers
 def updateDB(data, file):
     with open(file, 'w') as outfile:
@@ -38,16 +40,20 @@ def reset():
     updateGraspDB(default_grasp_data)
     updateBlockDB(default_blocks_data)
 
+
 # test code
 def run_testing_thread():
     """ will run thread that updates data every 5 seconds """
     import threading  # only used for testing
 
     blocksA = [  # TODO double check format
-        {'x': 10,'y': 10,'type':'cube'},
+        {'x': 10,'y': 10, 'angle': 30, 'color': 'blue', 'type':'cube'},
+        {'x': 100,'y': 100, 'angle': 60, 'color': 'blue', 'type':'cube'},
+
     ]
     blocksB = [  # TODO double check format
-        {'x': 100,'y': 100,'type':'cube'},
+        {'x': 10,'y': 10, 'angle': 270, 'color': 'orange', 'type':'starfish'},
+        {'x': 100,'y': 100, 'angle': 60, 'color': 'yellow', 'type':'starfish'},
     ]
     
     def loopWriteToDB():
@@ -84,7 +90,20 @@ def blocks_request():
         return json.dumps(getBlocksDB())
 
 
+@app.route('/video_feed')
+def video_feed():
+    fpath = '_scene.jpg'
+    return send_file(fpath, mimetype='image/jpg')
+
+
+@app.route('/video_feed_test')
+def video_feed_test():
+    test_img_paths = ['_testA.jpg', '_testB.jpg']
+    fpath = random.choice( test_img_paths ) 
+    return send_file(fpath, mimetype='image/jpg')
+
+
 if __name__ == '__main__':
     reset()  # reset data in 'server'
-    run_testing_thread()  # comment this line during production
+    #run_testing_thread()  # comment this line during production
     app.run()
