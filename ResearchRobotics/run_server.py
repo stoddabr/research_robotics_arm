@@ -4,41 +4,19 @@ from flask import Flask, send_file, request
 from markupsafe import escape
 import json
 import random
-
+import db_txt as db
    
-# io helpers
-def updateDB(data, file):
-    with open(file, 'w') as outfile:
-        json.dump(data, outfile)
 
-def getDB(file):
-    with open(file) as json_file:
-        return json.load(json_file)
-
-# db io functions
-# TODO datastructure validation
-db_address_blocks = '_blocks.txt'
-db_address_grasp = '_grasp.txt'
-def updateBlockDB(data):
-    updateDB(data, db_address_blocks)
-
-def updateGraspDB(data):
-    updateDB(data, db_address_grasp)
-
-def getBlocksDB():
-    return getDB(db_address_blocks)
-
-def getGraspDB():
-    return getDB(db_address_grasp)
 
 
 def reset():
     default_grasp_data = [0,0,False]  # [angle, object_coords, is_grasp]
-    default_blocks_data = [  # TODO double check format
-        {'x': 10,'y': 10,'type':'cube'},
+    default_blobs_data = [  # TODO double check format
+        {'x': '50','y': '50', 'angle': '270', 'color': 'orange', 'type':'starfish'},
+        {'x': '200','y': '200', 'angle': '270', 'color': 'orange', 'type':'cube'},
     ]
-    updateGraspDB(default_grasp_data)
-    updateBlockDB(default_blocks_data)
+    db.updateGraspDB(default_grasp_data)
+    db.updateBlockDB(default_blobs_data)
 
 
 # test code
@@ -46,23 +24,23 @@ def run_testing_thread():
     """ will run thread that updates data every 5 seconds """
     import threading  # only used for testing
 
-    blocksA = [  # TODO double check format
-        {'x': 10,'y': 10, 'angle': 30, 'color': 'blue', 'type':'cube'},
-        {'x': 100,'y': 100, 'angle': 60, 'color': 'blue', 'type':'cube'},
+    blobsA = [  # TODO double check format
+        {'x': '10','y': '10', 'angle': '270', 'color': 'orange', 'type':'cube'},
+        {'x': '200','y': '150', 'angle': '60', 'color': 'yellow', 'type':'cube'},
 
     ]
-    blocksB = [  # TODO double check format
-        {'x': 10,'y': 10, 'angle': 270, 'color': 'orange', 'type':'starfish'},
-        {'x': 100,'y': 100, 'angle': 60, 'color': 'yellow', 'type':'starfish'},
+    blobsB = [  # TODO double check format
+        {'x': '50','y': '50', 'angle': '270', 'color': 'orange', 'type':'starfish'},
+        {'x': '100','y': '100', 'angle': '60', 'color': 'yellow', 'type':'starfish'},
     ]
     
     def loopWriteToDB():
-        fname = 'db_blocks.txt'
+        fname = 'db_blobs.txt'
         while True:
-            updateBlockDB(blocksA)
+            updateBlockDB(blobsA)
             time.sleep(5)
 
-            updateBlockDB(blocksB)
+            updateBlockDB(blobsB)
             time.sleep(5)            
 
     test_io_thread = threading.Thread(target = loopWriteToDB)
@@ -76,18 +54,18 @@ app = Flask(__name__)
 def grasp_request():
     if request.method == 'POST':
         data = request.grasp
-        return updateGraspDB(data)
+        return db.updateGraspDB(data)
     else:   # GET
-        return json.dumps(getGraspDB())
+        return json.dumps(db.getGraspDB())
 
 
-@app.route('/blocks', methods=['GET', 'POST'])
-def blocks_request():
+@app.route('/blobs', methods=['GET', 'POST'])
+def blobs_request():
     if request.method == 'POST':
         data = request.grasp
-        return updateBlockDB(data)
+        return db.updateBlockDB(data)
     else:   # GET
-        return json.dumps(getBlocksDB())
+        return json.dumps(db.getBlocksDB())
 
 
 @app.route('/video_feed')
