@@ -9,6 +9,7 @@ from ArmIK.Transform import *
 from ArmIK.ArmMoveIK import *
 import HiwonderSDK.Board as Board
 from CameraCalibration.CalibrationConfig import *
+import params
 
 class Paw:
     """ controls the arm manipulator and joints """
@@ -25,7 +26,7 @@ class Paw:
 
         self.unreachable = False
         self.isRunning = False
-        self.closeAngle = 520  # gipper angle when grabbing object (legacy:servo1)
+        self.closeAngle = params.Paw.closeAngle # gipper angle when grabbing object (legacy:servo1)
         self.openAngle = (self.closeAngle - 280)  # legacy magic number 
         self.neutralAngle = (self.closeAngle - 50)  # legacy magic number
         self.AK = ArmIK()
@@ -77,7 +78,6 @@ class Paw:
 
     def rotateGripper(self, world_angle):
         """ turn the gripper """
-
         Board.setBusServoPulse(2, world_angle, 500)
         time.sleep(0.5)
 
