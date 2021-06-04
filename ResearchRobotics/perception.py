@@ -24,8 +24,6 @@ class Perception:
         self.starfish_shape_logscale = np.array([0.64055716, 3.97346808, 4.47200431, 4.85410399, 9.66857547, 6.9555887 , 9.66677454])
         
         #define bounds for classification
-        # self.block_threshold = np.multiply(0.3, np.array(self.block_shape_logscale))
-        # self.starfish_threshold = np.multiply(0.3, np.array(self.starfish_shape_logscale))
         self.block_t = params.Perception.block_threshold
         self.starfish_t = params.Perception.starfish_threshold
 
@@ -76,22 +74,6 @@ class Perception:
             # Calculate Hu Moments
             huMoments.append(cv2.HuMoments(moments))
         return huMoments
-        
-    # #checks to see if a moment is within the defined bounds of "box"    
-    # def is_block(self, moment):
-    #     shape_diff = abs(self.to_logscale(moment) - self.block_shape_logscale)
-    #     if (shape_diff < self.block_threshold).all():
-    #         return True
-    #     else:
-    #         return False
-
-    # checks to see if a moment is within the defined bounds of "starfish"        
-    # def is_starfish(self, moment):
-    #     shape_diff = abs(self.to_logscale(moment) - self.starfish_shape_logscale)
-    #     if (shape_diff < self.starfish_threshold).all():
-    #         return True
-    #     else:
-    #         return False
     
     # checks to see if a moment is L2-near enough to the platonic ideal of "box"
     def is_block(self, moment):
