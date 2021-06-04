@@ -6,7 +6,9 @@ import cv2
 import time
 import Camera
 from math import log10
+import params
 
+DEBUG = False
 
 class Perception:
     def __init__(self):
@@ -22,15 +24,13 @@ class Perception:
         self.starfish_shape_logscale = np.array([0.64055716, 3.97346808, 4.47200431, 4.85410399, 9.66857547, 6.9555887 , 9.66677454])
         
         #define bounds for classification
-        self.block_threshold = np.multiply(0.3, np.array(self.block_shape_logscale))
-        self.starfish_threshold = np.multiply(0.3, np.array(self.starfish_shape_logscale))
-        
+        # self.block_threshold = np.multiply(0.3, np.array(self.block_shape_logscale))
+        # self.starfish_threshold = np.multiply(0.3, np.array(self.starfish_shape_logscale))
+        self.block_t = params.Perception.block_threshold
+        self.starfish_t = params.Perception.starfish_threshold
+
         #define color ranges for thresholding
-        self.color_ranges = {
-        'red': [(0, 151, 100), (255, 255, 255)], 
-        'green': [(0, 0, 0), (255, 115, 255)], 
-        'blue': [(0, 0, 0), (255, 255, 110)], 
-        }
+        self.color_ranges = params.Perception.color_ranges
 
     #update function for image of scene
     def get_frame(self):
@@ -49,10 +49,12 @@ class Perception:
     
     #given an image, return processed binary image that contains only regions of the specified color
     def color_threshold(self, color, img):
+        if DEBUG: show_image(img.copy(), 'img_prethreshold')
         #convert to LAB
         lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
         #mask image for the target color
         frame_mask = cv2.inRange(lab, self.color_ranges[color][0], self.color_ranges[color][1])
+        if DEBUG: show_image(frame_mask.copy(), 'frame_mask_premorph')
         #smooth the image (erosion -> dilation -> dilation -> erosion)
         opened = cv2.morphologyEx(frame_mask, cv2.MORPH_OPEN, np.ones((6, 6), np.uint8)) 
         closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, np.ones((6, 6), np.uint8))  
@@ -75,22 +77,38 @@ class Perception:
             huMoments.append(cv2.HuMoments(moments))
         return huMoments
         
-    #checks to see if a moment is within the defined bounds of "box"    
+    # #checks to see if a moment is within the defined bounds of "box"    
+    # def is_block(self, moment):
+    #     shape_diff = abs(self.to_logscale(moment) - self.block_shape_logscale)
+    #     if (shape_diff < self.block_threshold).all():
+    #         return True
+    #     else:
+    #         return False
+
+    # checks to see if a moment is within the defined bounds of "starfish"        
+    # def is_starfish(self, moment):
+    #     shape_diff = abs(self.to_logscale(moment) - self.starfish_shape_logscale)
+    #     if (shape_diff < self.starfish_threshold).all():
+    #         return True
+    #     else:
+    #         return False
+    
+    # checks to see if a moment is L2-near enough to the platonic ideal of "box"
     def is_block(self, moment):
         shape_diff = abs(self.to_logscale(moment) - self.block_shape_logscale)
-        if (shape_diff < self.block_threshold).all():
+        if (shape_diff**2).sum() < self.block_t:
             return True
         else:
             return False
-    
-    #checks to see if a moment is within the defined bounds of "starfish"        
+
+    # checks to see if a moment is L2-near enough to the platonic ideal of "starfish"        
     def is_starfish(self, moment):
         shape_diff = abs(self.to_logscale(moment) - self.starfish_shape_logscale)
-        if (shape_diff < self.starfish_threshold).all():
+        if (shape_diff**2).sum() < self.starfish_t:
             return True
         else:
             return False
-    
+
     #finds all block and starfish blobs of one color
     def find_targets(self, image, color):
         blobs = []
@@ -100,11 +118,21 @@ class Perception:
         frame_gb = cv2.GaussianBlur(processing_frame, (11, 11), 11)
         #threshold to single color
         frame_mono = self.color_threshold(color, frame_gb)
+        if DEBUG: show_image(frame_mono.copy(), 'frame_mono')
         #find contours and hu moments
         canny_output = cv2.Canny(frame_mono, 128, 255)
+        if DEBUG: show_image(canny_output, 'canny_output')
         contours = self.get_contours(canny_output)
+        contours = list(filter(
+            lambda c: cv2.contourArea(c) > params.Perception.min_cnt_area,
+            contours))
         hu_moments = self.get_moments(contours)
     
+        if DEBUG:
+            img_contours = image.copy()
+            cv2.drawContours(img_contours, contours, -1, (0,255,0), 3)               
+            show_image(img_contours)
+
         #for every found contour
         count = 0
         for cnt in contours:
@@ -118,13 +146,13 @@ class Perception:
                     rect = cv2.minAreaRect(cnt)
                     block_blob = {'x': cx, 'y': cy, 'color': color, 'type': 'block', 'angle': rect[2]}
                     blobs.append(block_blob)
-                if self.is_starfish(hu_moments[count]):
+                if self.is_starfish(hu_moments[count]) and color=='blue':
                     starfish_blob = {'x': cx, 'y': cy, 'color': color, 'type': 'starfish', 'angle': 0}
                     blobs.append(starfish_blob)
             count = count + 1
         
         return blobs
-    
+
     #main function that updates the frame and returns all targets in scene
     def get_all_targets(self):
         #update image from camera
@@ -141,21 +169,30 @@ class Perception:
             
         return scene
     
+def label_scene(display_frame, scene):
+    for obj in scene:
+        display_frame = cv2.putText(display_frame, ". " + obj['type'] + " (" + obj['color'] + ")", (obj['x'], obj['y']), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2, cv2.LINE_AA)
+    return display_frame
+        
+def show_image(img, name='img'):
+    cv2.imshow(name, img)
+    key = cv2.waitKey(1)
+    if key == 27:
+        return
+
 if __name__ == '__main__':
     count = 0
     perception_obj = Perception()
     while True:
         count = count + 1
+        print()
         #perception_obj.get_frame()
-        foo = perception_obj.get_all_targets()
+        scene = perception_obj.get_all_targets()
         img = perception_obj.frame
+        img = label_scene(img, scene)
         if img is not None:
-            cv2.imshow('img', img)
-            print(foo)
-            #print(perception_obj.get_moments(img))
-            key = cv2.waitKey(1)
-            if key == 27:
-                break
+            print(scene)
+            show_image(img)
                 
     perception_obj.my_camera.camera_close()
     cv2.destroyAllWindows()
