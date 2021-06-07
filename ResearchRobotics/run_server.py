@@ -50,19 +50,22 @@ def run_testing_thread():
 # setup flask server and routes
 app = Flask(__name__)
 
-@app.route('/grasp', methods=['GET', 'POST'])
+@app.route('/grasp', methods=['GET', 'PUT'])
 def grasp_request():
-    if request.method == 'POST':
-        data = request.grasp
-        return db.updateGraspDB(data)
+    if request.method == 'PUT':
+        data = request.get_data(as_text=True)
+        print('!!!!! put grasp data', data)
+        db.updateGraspDB(data, as_text=True)
+        return 'Got'
     else:   # GET
         return json.dumps(db.getGraspDB())
 
 
-@app.route('/blobs', methods=['GET', 'POST'])
+@app.route('/blobs', methods=['GET', 'PUT'])
 def blobs_request():
-    if request.method == 'POST':
-        data = request.grasp
+    if request.method == 'PUT':
+        data = request.get_json()
+        print('!!!!! put grasp data', data)
         return db.updateBlockDB(data)
     else:   # GET
         return json.dumps(db.getBlocksDB())
