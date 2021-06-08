@@ -24,11 +24,15 @@ def updateDBImg(frame):
     imwrite(db_address_img,frame)
 
 
-
 # helper functions
 # TODO validation
 def updateBlockDB(data):
     updateDB(data, db_address_blobs)
+
+
+def getBlocksDB():
+    return getDB(db_address_blobs)
+
 
 def updateGraspDB(data, as_text=False):
     if as_text:
@@ -36,8 +40,12 @@ def updateGraspDB(data, as_text=False):
     else:
         updateDB(data, db_address_grasp)
 
-def getBlocksDB():
-    return getDB(db_address_blobs)
 
 def getGraspDB():
     return getDB(db_address_grasp)
+
+
+def clearGraspDB():
+    data = {'grasp':'reset'}
+    updateDBTxt(data, db_address_grasp)
+
