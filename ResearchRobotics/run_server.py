@@ -87,4 +87,4 @@ def video_feed_test():
 if __name__ == '__main__':
     reset()  # reset data in 'server'
     #run_testing_thread()  # comment this line during production
-    app.run()
+    app.run(host='0.0.0.0')

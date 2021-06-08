@@ -7,6 +7,7 @@ import time
 import Camera
 from math import log10
 import params
+from db_txt import *
 
 DEBUG = False
 
@@ -33,6 +34,7 @@ class Perception:
     #update function for image of scene
     def get_frame(self):
         self.frame = self.my_camera.frame
+        updateDBImg(self.frame)
     
     #converts humoments to logarithmic representation for comparison
     def to_logscale(self, moment):
@@ -128,7 +130,7 @@ class Perception:
                     rect = cv2.minAreaRect(cnt)
                     block_blob = {'x': cx, 'y': cy, 'color': color, 'type': 'block', 'angle': rect[2]}
                     blobs.append(block_blob)
-                if self.is_starfish(hu_moments[count]) and color=='blue':
+                if self.is_starfish(hu_moments[count]) and color=='green':
                     starfish_blob = {'x': cx, 'y': cy, 'color': color, 'type': 'starfish', 'angle': 0}
                     blobs.append(starfish_blob)
             count = count + 1
@@ -148,7 +150,8 @@ class Perception:
             for color in ['red', 'green', 'blue']:
                 blobs = self.find_targets(self.frame, color)
                 scene.extend(blobs)
-            
+        
+        updateBlockDB(scene)
         return scene
     
 def label_scene(display_frame, scene):
