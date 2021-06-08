@@ -47,5 +47,5 @@ def getGraspDB():
 
 def clearGraspDB():
     data = {'grasp':'reset'}
-    updateDBTxt(data, db_address_grasp)
+    updateDB(data, db_address_grasp)
 
