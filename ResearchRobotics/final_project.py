@@ -10,7 +10,7 @@ sys.path.append('/home/pi/ArmPi/')
 from paw_class import Paw
 from perception import Perception, show_image, label_scene
 import numpy as np
-from ArmIK.Transform import getAngle
+from ArmIK.Transform import convertCoordinate
 import db_txt as db
 
 
@@ -22,6 +22,7 @@ if __name__ == '__main__':
     perception_obj = Perception()
     paw_obj = Paw()
     final_pos = (-15 + 0.5, 12 - 0.5, 1.5)  # x block home
+    img_size =(640, 480)
 
     while True:
         # perception code
@@ -41,8 +42,9 @@ if __name__ == '__main__':
             x_pos = graspInfo['x']
             y_pos = graspInfo['y']
             a_pos = graspInfo['angle']
-            print("Grabbing!")
-            paw_obj.grabAtXY(x_pos,y_pos,a_pos)
+            world_x, world_y = convertCoordinate(x_pos, y_pos, img_size) # Convert to real world coordinates
+            print("Grabbing!", world_x,world_y, a_pos)
+            paw_obj.grabAtXY(world_x,world_y,a_pos)
 
             # place block at set coord
             print("Placing!")
